@@ -14,12 +14,11 @@ public class CustomWidget extends JPanel implements MouseListener {
     private boolean selected;
     private Point[] vertex;
 
-    
     public CustomWidget() {
         observers = new ArrayList<>();
         
         selected = false;
-        vertex = new Point[4];
+        vertex = new Point[6];
         for(int i = 0; i < vertex.length; i++) { vertex[i] = new Point(); }
         Dimension dim = getPreferredSize();
         calculateVertices(dim.width, dim.height);
@@ -49,11 +48,10 @@ public class CustomWidget extends JPanel implements MouseListener {
 
     private void calculateVertices(int width, int height) {
         // Square size should be half of the smallest dimension (width or height).
-        int side = Math.min(width, height) / 2;
-        Point[] sign = {new Point(-1, -1), new Point(1, -1), new Point(1, 1), new Point(-1, 1)};
+        double theta = 2 * Math.PI / vertex.length;
         for(int i = 0; i < vertex.length; i++) {
-            vertex[i].setLocation(width/2 + sign[i].x * side/2, 
-                                  height/2 + sign[i].y * side/2);
+            vertex[i].setLocation(width/2 + Math.cos(theta * i)*100,
+                                  height/2 + Math.sin(theta * i)*100);
         }
     }
     
