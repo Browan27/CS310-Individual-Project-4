@@ -11,15 +11,21 @@ public class CustomWidget extends JPanel implements MouseListener {
     
     private final Color SELECTED_COLOR = Color.blue;
     private final Color DEFAULT_COLOR = Color.yellow;
-    private boolean selected;
-    private Point[] vertex;
+    private boolean[] selected;
+    private Point[][] vertex;
 
     public CustomWidget() {
         observers = new ArrayList<>();
         
-        selected = false;
-        vertex = new Point[6];
-        for(int i = 0; i < vertex.length; i++) { vertex[i] = new Point(); }
+        selected = new boolean[]{false, false};
+        
+        vertex = new Point[2][6];
+        vertex[1] = new Point[8];
+        for(int i = 0; i < vertex.length; i++) {
+            for(int j = 0; j < vertex[i].length; j++) {
+                vertex[i][j] = new Point();
+            }
+        }
         Dimension dim = getPreferredSize();
         calculateVertices(dim.width, dim.height);
         setBorder(BorderFactory.createLineBorder(Color.black));
@@ -48,10 +54,13 @@ public class CustomWidget extends JPanel implements MouseListener {
 
     private void calculateVertices(int width, int height) {
         // Square size should be half of the smallest dimension (width or height).
-        double theta = 2 * Math.PI / vertex.length;
+        double theta = 0.0;
         for(int i = 0; i < vertex.length; i++) {
-            vertex[i].setLocation(width/2 + Math.cos(theta * i)*100,
+            theta = 2 * Math.PI / vertex[i].length;
+            for(int j = 0; j < vertex[i].length; j++) {
+                vertex[i][j].setLocation((width/3)*i + Math.cos(theta * i)*100,
                                   height/2 + Math.sin(theta * i)*100);
+            }
         }
     }
     
@@ -60,43 +69,53 @@ public class CustomWidget extends JPanel implements MouseListener {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D)g;
         calculateVertices(getWidth(), getHeight());
-        Shape shape = getShape();
-        g2d.setColor(Color.black);
-        g2d.draw(shape);
-        if(selected) {
-            g2d.setColor(SELECTED_COLOR);
-            g2d.fill(shape);
-        }
-        else {
-            g2d.setColor(DEFAULT_COLOR);
-            g2d.fill(shape);            
+        Shape[] shapes = getShapes();
+        
+        for(int i = 0; i < shapes.length; i++) {
+            g2d.setColor(Color.black);
+            g2d.draw(shapes[i]);
+            if(selected[i]) {
+                g2d.setColor(SELECTED_COLOR);
+                g2d.fill(shapes[i]);
+            }
+            else {
+                g2d.setColor(DEFAULT_COLOR);
+                g2d.fill(shapes[i]);            
+            }
         }
     }
 
     public void mouseClicked(MouseEvent event) {
-        Shape shape = getShape();
-        if(shape.contains(event.getX(), event.getY())) {
-            selected = !selected;
-            notifyObservers();
+        Shape[] shapes = getShapes();
+        for(int i = 0; i < shapes.length; i++) {
+            if(shapes[i].contains(event.getX(), event.getY())) {
+                selected[i] = !selected[i];
+                notifyObservers();
+            }
+            repaint(shapes[i].getBounds());
         }
-        repaint(shape.getBounds());
     }
     public void mousePressed(MouseEvent event) {}
     public void mouseReleased(MouseEvent event) {}
     public void mouseEntered(MouseEvent event) {}
     public void mouseExited(MouseEvent event) {}
     
-    public Shape getShape() {
-        int[] x = new int[vertex.length];
-        int[] y = new int[vertex.length];
+    public Shape[] getShapes() {
+        Shape[] shapes = new Shape[vertex.length];
+        
         for(int i = 0; i < vertex.length; i++) {
-            x[i] = vertex[i].x;
-            y[i] = vertex[i].y;
+            int[] x = new int[vertex[i].length];
+            int[] y = new int[vertex[i].length];
+            for(int j = 0; j < vertex[i].length; j++) {
+                x[j] = vertex[i][j].x;
+                y[j] = vertex[i][j].y;
+            }
+            shapes[i] = new Polygon(x, y, vertex[i].length);
         }
-        Shape shape = new Polygon(x, y, vertex.length);
-        return shape;
+        
+        return shapes;
     }
-    public boolean isSelected() { return selected; }
+    public boolean[] isSelected() { return selected; }
 
 
 
