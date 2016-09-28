@@ -23,11 +23,11 @@ public class CustomWidgetTest {
 	@Test
 	public void testWidgetIsInitiallyDeselected() {
         boolean[] selected = widget.isSelected();
-		assertFalse(selected[0]);
+		assertFalse(selected[1]);
 	}
     
     @Test
-    public void testClickingCenterOfWidgetSelectsIt() {
+    public void testClickingCenterOfWidgetDeselectsIt() {
         Point center = getCenterOfWidget();
         MouseEvent event = new MouseEvent(widget, MouseEvent.MOUSE_CLICKED, System.currentTimeMillis(), 
                                           0, center.x, center.y, 1, false);

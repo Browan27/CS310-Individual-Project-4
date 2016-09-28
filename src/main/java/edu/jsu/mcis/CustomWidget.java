@@ -9,15 +9,15 @@ public class CustomWidget extends JPanel implements MouseListener {
     private java.util.List<ShapeObserver> observers;
     
     
-    private final Color SELECTED_COLOR = Color.blue;
-    private final Color DEFAULT_COLOR = Color.yellow;
+    private final Color[] SELECTED_COLOR = {Color.green, Color.red};
+    private final Color DEFAULT_COLOR = Color.white;
     private boolean[] selected;
     private Point[][] vertex;
 
     public CustomWidget() {
         observers = new ArrayList<>();
         
-        selected = new boolean[]{false, false};
+        selected = new boolean[]{true, false};
         
         vertex = new Point[2][6];
         vertex[1] = new Point[8];
@@ -58,8 +58,8 @@ public class CustomWidget extends JPanel implements MouseListener {
         for(int i = 0; i < vertex.length; i++) {
             theta = 2 * Math.PI / vertex[i].length;
             for(int j = 0; j < vertex[i].length; j++) {
-                vertex[i][j].setLocation((width/3)*i + Math.cos(theta * i)*100,
-                                  height/2 + Math.sin(theta * i)*100);
+                vertex[i][j].setLocation((width/3)*(1+i) + Math.cos(theta * j)*100,
+                                  height/2 + Math.sin(theta * j)*100);
             }
         }
     }
@@ -75,7 +75,7 @@ public class CustomWidget extends JPanel implements MouseListener {
             g2d.setColor(Color.black);
             g2d.draw(shapes[i]);
             if(selected[i]) {
-                g2d.setColor(SELECTED_COLOR);
+                g2d.setColor(SELECTED_COLOR[i]);
                 g2d.fill(shapes[i]);
             }
             else {
@@ -87,13 +87,18 @@ public class CustomWidget extends JPanel implements MouseListener {
 
     public void mouseClicked(MouseEvent event) {
         Shape[] shapes = getShapes();
-        for(int i = 0; i < shapes.length; i++) {
-            if(shapes[i].contains(event.getX(), event.getY())) {
-                selected[i] = !selected[i];
-                notifyObservers();
-            }
-            repaint(shapes[i].getBounds());
+        if(shapes[0].contains(event.getX(), event.getY())) {
+            selected[0] = true;
+            selected[1] = false;
+            notifyObservers();
         }
+        else if(shapes[1].contains(event.getX(), event.getY())) {
+            selected[1] = true;
+            selected[0] = false;
+            notifyObservers();
+        }
+        repaint(shapes[0].getBounds());
+        repaint(shapes[1].getBounds());
     }
     public void mousePressed(MouseEvent event) {}
     public void mouseReleased(MouseEvent event) {}
